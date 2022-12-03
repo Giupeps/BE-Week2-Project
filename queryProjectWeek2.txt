@@ -1,0 +1,58 @@
+Create Table ANAGRAFICA (
+	IDAnagrafica int primary key identity not null,
+	Cognome nvarchar(max) not null,
+	Nome nvarchar(max) not null,
+	Indirizzo nvarchar(max) not null,
+	Citta nvarchar(max) not null,
+	CAP char(5) not null,
+	Cod_Fisc char(16) unique not null,
+)
+
+create table VIOLAZIONE(
+	Idviolazione int primary key not null identity,
+	descrizione nvarchar(max) not null
+)
+
+
+create table VERBALE(
+	Idverbale int primary key not null identity,
+	DataViolazione datetime not null,
+	IndirizzoViolazione nvarchar(max) not null,
+	Nominativo_Agente nvarchar(max) not null,
+	DataTrascrizioneVerbale datetime not null,
+	Importo money not null check (Importo > 0),
+	DecurtamentoPunti int not null,
+	Idanagrafica int not null,
+	Idviolazione int not null
+
+	Constraint FK_ANAGRAFICA
+	foreign key (Idanagrafica) references ANAGRAFICA(Idanagrafica),
+
+	Constraint FK_VIOLAZIONE
+	foreign key (Idviolazione) references VIOLAZIONE(Idviolazione)
+)
+
+
+select count (*) as [Numero Totale Verbali] from VERBALE
+
+select count (*) as [Numero Totale Verbali], Cognome, Nome from VERBALE inner join ANAGRAFICA on VERBALE.Idanagrafica = ANAGRAFICA.IDAnagrafica
+group by Cognome, Nome
+
+select count(*) as NumeroVerbali, descrizione from VERBALE inner join VIOLAZIONE on VERBALE.Idviolazione = VIOLAZIONE.Idviolazione group by descrizione
+
+select Cognome, Nome, sum(DecurtamentoPunti)as TotalePuntiDecurtati  from VERBALE inner join ANAGRAFICA on VERBALE.Idanagrafica = ANAGRAFICA.IDAnagrafica
+group by Cognome, Nome
+
+select Cognome, Nome, Indirizzo, DataViolazione, IndirizzoViolazione, Importo, DecurtamentoPunti  from ANAGRAFICA inner join VERBALE on ANAGRAFICA.IDAnagrafica = VERBALE.Idanagrafica where Citta = 'Palermo'
+
+select Cognome, Nome, Indirizzo, DataViolazione, Importo, DecurtamentoPunti from ANAGRAFICA inner join VERBALE on ANAGRAFICA.IDAnagrafica = VERBALE.Idanagrafica where DataViolazione between '2009-01-02' and '2009-30-07'
+
+select Cognome, Nome, sum(Importo) as TotaleImporti from VERBALE inner join ANAGRAFICA on VERBALE.Idanagrafica = ANAGRAFICA.IDAnagrafica group by Cognome, Nome
+
+select * from ANAGRAFICA where Citta = 'Palermo'
+
+select Nominativo_Agente, count(Idverbale) as TotaleVerbali from VERBALE group by Nominativo_Agente
+
+select Cognome, Nome, Indirizzo, DataViolazione, Importo, DecurtamentoPunti from ANAGRAFICA inner join VERBALE on ANAGRAFICA.IDAnagrafica = VERBALE.Idanagrafica where DecurtamentoPunti > 5
+
+select Cognome, Nome, Indirizzo, DataViolazione, Importo, DecurtamentoPunti from ANAGRAFICA inner join VERBALE on ANAGRAFICA.IDAnagrafica = VERBALE.Idanagrafica where Importo > 400
